@@ -80,8 +80,8 @@ def train(args):
     for epoch in range(args.n_epoch):
         model.train()
         for i, (images, labels) in enumerate(trainloader):
-            images = Variable(images.cuda())
-            labels = Variable(labels.cuda())
+            images = images.cuda()
+            labels = labels.cuda()
 
             optimizer.zero_grad()
             outputs = model(images)
@@ -93,13 +93,13 @@ def train(args):
 
             if args.visdom:
                 vis.line(
-                    X=torch.ones((1, 1)).cpu() * i,
-                    Y=torch.Tensor([loss.data[0]]).unsqueeze(0).cpu(),
+                    X=torch.ones((1,)).cpu() * i,
+                    Y=torch.Tensor([loss.item()]).cpu(),
                     win=loss_window,
                     update='append')
 
             if (i+1) % 20 == 0:
-                print("Epoch [%d/%d] Loss: %.4f" % (epoch+1, args.n_epoch, loss.data[0]))
+                print("Epoch [%d/%d] Loss: %.4f" % (epoch+1, args.n_epoch, loss.item()))
 
         model.eval()
         for i_val, (images_val, labels_val) in tqdm(enumerate(valloader)):
