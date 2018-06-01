@@ -102,14 +102,15 @@ def train(args):
                 print("Epoch [%d/%d] Loss: %.4f" % (epoch+1, args.n_epoch, loss.item()))
 
         model.eval()
-        for i_val, (images_val, labels_val) in tqdm(enumerate(valloader)):
-            images_val = Variable(images_val.cuda(), volatile=True)
-            labels_val = Variable(labels_val.cuda(), volatile=True)
+        with torch.no_grad():
+            for i_val, (images_val, labels_val) in tqdm(enumerate(valloader)):
+                images_val = images_val.cuda()
+                labels_val = labels_val.cuda()
 
-            outputs = model(images_val)
-            pred = outputs.data.max(1)[1].cpu().numpy()
-            gt = labels_val.data.cpu().numpy()
-            running_metrics.update(gt, pred)
+                outputs = model(images_val)
+                pred = outputs.detach().max(1)[1].cpu().numpy()
+                gt = labels_val.detach().cpu().numpy()
+                running_metrics.update(gt, pred)
 
         score, class_iou = running_metrics.get_scores()
         for k, v in score.items():
